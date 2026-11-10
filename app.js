@@ -22,9 +22,10 @@ async function load(){
 async function main(){
   await liff.init({liffId:LIFF_ID});
   if(!liff.isLoggedIn()) return liff.login();
-  const u=new URLSearchParams(location.search);
-  const q=u.get('q')||new URLSearchParams((u.get('liff.state')||'').replace(/^\?/,'')).get('q');
-  if(q){S.sel=q.split('|')[0];S.ym=S.sel.slice(0,7);}
+  const u=new URLSearchParams(location.search), st=new URLSearchParams((u.get('liff.state')||'').replace(/^\?/,''));
+  const gp=k=>u.get(k)||st.get(k), q=gp('q'), t=gp('tab');
+  if(['set','cal','list'].includes(t)) S.tab=t;
+  if(q){S.sel=q.split('|')[0];S.ym=S.sel.slice(0,7);S.tab='cal';}
   await load();
 }
 main().catch(e=>{document.querySelector('main').textContent='エラー: '+e});

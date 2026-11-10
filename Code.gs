@@ -16,7 +16,7 @@ const SH = {
 const OPT = { yesno: ['いる', 'いらない'], yn: ['YES', 'NO'], maru: ['〇', '×'] };
 // 叱り文句（{n}=名前）。自由に差し替え可
 const SCOLD = [
-  '{n}さん、返事まだかいな！さっさと',
+  '{n}さん、回答せえへんかったな！しばくで！',
   '{n}さん、返事ばせんかったね！いかんばい！',
   '{n}さん、回答してちょーせんかったがね！かんわぁ！',
   '{n}さん、返事せんかったちや！いかんぜよ！',
@@ -51,6 +51,7 @@ function del(n, key, val) {
 }
 const rules = () => read('rules').map(r => ({ ...r, recur: JSON.parse(r.recur || '{}'), ans: JSON.parse(r.ans || '{}') }));
 const fmt = d => Utilities.formatDate(d, TZ, 'yyyy-MM-dd');
+const liffUrl = qs => 'https://liff.line.me/' + P.getProperty('LIFF_ID') + (qs ? '?' + qs : '');
 const getLog = k => read('log').find(l => l.k == k) || {};
 
 /* ---------- LINE API ---------- */
@@ -108,7 +109,10 @@ function remind(r, d) {
         action: { type: 'postback', label: String(o).slice(0, 20), data: [d, r.id, o].join('|') } }))
     : [{ type: 'button', style: 'primary', color: '#06c755',
         action: { type: 'uri', label: t == 'time' ? '時間を入力' : '入力する',
-          uri: 'https://liff.line.me/' + P.getProperty('LIFF_ID') + '?q=' + encodeURIComponent(d + '|' + r.id) } }];
+          uri: liffUrl('q=' + encodeURIComponent(d + '|' + r.id)) } }];
+  // どの質問でも「カレンダーを開く」ボタンを最下部に追加
+  btns.push({ type: 'button', style: 'secondary', margin: 'md',
+    action: { type: 'uri', label: 'カレンダーを開く', uri: liffUrl('q=' + encodeURIComponent(d + '|' + r.id)) } });
   push([{ type: 'flex', altText: r.title, contents: { type: 'bubble',
     body: { type: 'box', layout: 'vertical', spacing: 'sm', contents: body },
     footer: { type: 'box', layout: 'vertical', contents: btns } } }]);
@@ -154,6 +158,9 @@ function hook(b) {
   b.events.forEach(ev => {
     const g = ev.source.groupId;
     if (g) P.setProperty('GROUP_ID', g);
+    if (ev.type == 'message' && ev.message.type == 'text' && g && /^(メニュー|めにゅー|menu)$/i.test(ev.message.text.trim())) {
+      reply(ev.replyToken, [menuMsg()]);
+    }
     if (ev.type == 'postback' && g) {
       const p = ev.postback.data.split('|'), v = p.slice(2).join('|'), m = member(ev.source.userId);
       if (!m) return;
@@ -162,6 +169,13 @@ function hook(b) {
     }
   });
   return ContentService.createTextOutput('ok');
+}
+function menuMsg() {
+  const b = (label, tab) => ({ type: 'button', style: 'primary', color: '#06c755', margin: 'sm',
+    action: { type: 'uri', label, uri: liffUrl('tab=' + tab) } });
+  return { type: 'flex', altText: 'メニュー', contents: { type: 'bubble',
+    body: { type: 'box', layout: 'vertical', contents: [{ type: 'text', text: 'メニュー', weight: 'bold', size: 'lg' }] },
+    footer: { type: 'box', layout: 'vertical', contents: [b('カレンダー', 'cal'), b('一覧', 'list'), b('設定', 'set')] } } };
 }
 function who(t) { // IDトークン検証 + グループ所属確認
   const r = UrlFetchApp.fetch('https://api.line.me/oauth2/v2.1/verify', { method: 'post', muteHttpExceptions: true,
