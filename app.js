@@ -1,4 +1,4 @@
-const LIFF_ID='YOUR_LIFF_ID', GAS='YOUR_GAS_WEBAPP_URL';  // ← 書き換える
+const LIFF_ID='2012515520-dMDeNwhB', GAS='https://script.google.com/macros/s/AKfycbzffSbSy7Gb05bADVtV26LqBIRhKak-MtdKivI1VYIvl5BRI4Z9Hu0gIpQzb9hMeACM4Q/exec';  
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const WD='日月火水木金土';
