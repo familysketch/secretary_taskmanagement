@@ -3,7 +3,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const WD='日月火水木金土';
 const TYPES={yesno:'いる / いらない',yn:'YES / NO',maru:'〇 / ×',time:'時間で答える',text:'自由記述',choice:'選択肢（最大10）'};
-const RT={daily:'毎日',weekly:'曜日固定',monthly:'毎月〇日',nth:'第〇×曜日',yearly:'毎年〇日',once:'単発'};
+const RT={daily:'毎日',weekly:'曜日固定',monthly:'毎月〇日',nth:'第〇×曜日',yearly:'毎年〇日',once:'繰り返しなし'};
 const OPT={yesno:['いる','いらない'],yn:['YES','NO'],maru:['〇','×']};
 const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
 const S={tab:'cal',ym:ym(new Date()),data:{},sel:null,edit:null,rules:[],members:[],me:''};
