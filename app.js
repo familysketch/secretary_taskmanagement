@@ -1,9 +1,9 @@
-const LIFF_ID='2012515520-dMDeNwhB', GAS='https://script.google.com/macros/s/AKfycbzffSbSy7Gb05bADVtV26LqBIRhKak-MtdKivI1VYIvl5BRI4Z9Hu0gIpQzb9hMeACM4Q/exec';  
+const LIFF_ID='YOUR_LIFF_ID', GAS='YOUR_GAS_WEBAPP_URL';  // ← 書き換える
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const WD='日月火水木金土';
 const TYPES={yesno:'いる / いらない',yn:'YES / NO',maru:'〇 / ×',time:'時間で答える',text:'自由記述',choice:'選択肢（最大10）'};
-const RT={daily:'毎日',weekly:'曜日固定',monthly:'毎月〇日',nth:'第〇×曜日',yearly:'毎年〇日',once:'繰り返しなし'};
+const RT={daily:'毎日',weekly:'曜日固定',monthly:'毎月〇日',nth:'第〇×曜日',yearly:'毎年〇日',once:'単発'};
 const OPT={yesno:['いる','いらない'],yn:['YES','NO'],maru:['〇','×']};
 const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
 const S={tab:'cal',ym:ym(new Date()),data:{},sel:null,edit:null,rules:[],members:[],me:''};
@@ -12,11 +12,11 @@ const nm=id=>S.members.find(m=>m.userId==id)?.name||'?';
 const opts=r=>OPT[r.ans.type]||r.ans.choices||[];
 
 async function api(a,p={}){
-  const r=await fetch(GAS,{method:'POST',body:JSON.stringify({a,idToken:liff.getIDToken(),...p})});
+  const r=await fetch(GAS,{method:'POST',body:JSON.stringify({a,idToken:liff.getIDToken(),space:S.space,...p})});
   const j=await r.json(); if(!j.ok) throw j.e; return j.d;
 }
 async function load(){
-  const [i,m]=await Promise.all([api('init'),api('month',{ym:S.ym})]);
+  const [i,m]=await Promise.all([api('data'),api('month',{ym:S.ym})]);
   Object.assign(S,i,{data:m}); render();
 }
 async function main(){
@@ -26,14 +26,19 @@ async function main(){
   const gp=k=>u.get(k)||st.get(k), q=gp('q'), t=gp('tab');
   if(['set','cal','list'].includes(t)) S.tab=t;
   if(q){S.sel=q.split('|')[0];S.ym=S.sel.slice(0,7);S.tab='cal';}
+  const ini=await api('init'); S.spaces=ini.spaces;
+  let sp=gp('s'); if(!sp) try{sp=localStorage.getItem('sp')}catch(e){}
+  S.space=(S.spaces.find(x=>x.id==sp)||S.spaces[0]).id;
   await load();
 }
 main().catch(e=>{document.querySelector('main').textContent='エラー: '+e});
 
+function sw(v){S.space=v;try{localStorage.setItem('sp',v)}catch(e){}S.sel=null;S.edit=null;load()}
+const vSw=()=>S.spaces.length>1?`<select onchange="sw(this.value)" style="width:100%;margin-bottom:10px">${S.spaces.map(x=>`<option value="${x.id}" ${x.id==S.space?'selected':''}>${esc(x.name)}</option>`).join('')}</select>`:'';
 function go(t){S.tab=t;S.edit=null;render()}
 function render(){
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==S.tab));
-  $('main').innerHTML={set:vSet,cal:vCal,list:vList}[S.tab]();
+  $('main').innerHTML=vSw()+{set:vSet,cal:vCal,list:vList}[S.tab]();
 }
 
 /* ---- カレンダー ---- */
