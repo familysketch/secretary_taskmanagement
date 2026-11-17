@@ -3,17 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>家族ボード</title>
+<title>ただいま連絡</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main></main>
-<nav>
-  <button data-t="set" onclick="go('set')">設定</button>
-  <button data-t="cal" onclick="go('cal')">カレンダー</button>
-  <button data-t="list" onclick="go('list')">一覧</button>
-</nav>
+<main>
+  <h1>ただいま連絡</h1>
+  <label for="t">① 帰る時間</label>
+  <input id="t" type="time">
+  <label>② 夕食（押すとすぐ送信）</label>
+  <div class="row">
+    <button class="p" data-v="いる">いる</button>
+    <button data-v="いらない">いらない</button>
+  </div>
+  <p id="m" aria-live="polite"></p>
+</main>
 <script src="app.js"></script>
 </body>
 </html>
