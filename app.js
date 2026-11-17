@@ -1,4 +1,4 @@
-const LIFF_ID = 'YOUR_LIFF_ID';   // ← 書き換える
+const LIFF_ID = '2012515520-dMDeNwhB';   
 const $ = s => document.querySelector(s);
 const pad = n => String(n).padStart(2, '0');
 const btns = () => document.querySelectorAll('button[data-v]');
